@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Crypto Check
+GenericName=Crypto Price Checker
+Comment=Check live prices for any cryptocurrency by name or ticker symbol
+Exec=crypto-check
+Icon=io.github.g0d1k.CryptoCheck
+Terminal=false
+Categories=Office;Finance;
+Keywords=crypto;cryptocurrency;bitcoin;ethereum;price;coin;
+StartupWMClass=CryptoCheck

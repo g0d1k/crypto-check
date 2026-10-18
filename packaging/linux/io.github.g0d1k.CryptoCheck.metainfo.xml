@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.g0d1k.CryptoCheck</id>
+  <name>Crypto Check</name>
+  <summary>Check live prices for any cryptocurrency</summary>
+  <developer id="io.github.g0d1k">
+    <name>g0d1k</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <description>
+    <p>
+      Crypto Check is a simple, good-looking price checker for cryptocurrencies.
+      Type a coin's name (like "Bitcoin") or its ticker symbol (like "ETH") and get its live price.
+    </p>
+    <ul>
+      <li>Live price with 1 hour, 24 hour and 7 day changes</li>
+      <li>Interactive 7-day price chart</li>
+      <li>Market cap, volume, supply, daily high and low, and all-time high</li>
+      <li>Ten display currencies, including USD, EUR, GBP and BTC</li>
+      <li>Light and dark themes, plus optional auto-refresh</li>
+    </ul>
+    <p>Prices are provided by the free CoinGecko API. No account or API key needed.</p>
+  </description>
+
+  <launchable type="desktop-id">io.github.g0d1k.CryptoCheck.desktop</launchable>
+  <provides>
+    <binary>crypto-check</binary>
+  </provides>
+
+  <url type="homepage">https://github.com/g0d1k/crypto-check</url>
+  <url type="bugtracker">https://github.com/g0d1k/crypto-check/issues</url>
+  <url type="vcs-browser">https://github.com/g0d1k/crypto-check</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Checking the price of Bitcoin</caption>
+      <image>https://raw.githubusercontent.com/g0d1k/crypto-check/main/docs/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#93c5fd</color>
+    <color type="primary" scheme_preference="dark">#1e3a8a</color>
+  </branding>
+
+  <categories>
+    <category>Office</category>
+    <category>Finance</category>
+  </categories>
+  <keywords>
+    <keyword>crypto</keyword>
+    <keyword>cryptocurrency</keyword>
+    <keyword>bitcoin</keyword>
+    <keyword>price</keyword>
+  </keywords>
+
+  <requires>
+    <internet>always</internet>
+  </requires>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="1.0.0" date="2026-10-18">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

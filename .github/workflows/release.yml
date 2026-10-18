@@ -1,0 +1,120 @@
+# Builds every installable format and publishes a GitHub Release.
+#
+# To release:  bump __version__ in crypto_check/__init__.py, then
+#     git tag v1.0.0 && git push origin v1.0.0
+#
+# You can also run it by hand from the Actions tab (builds only, no release).
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  python-package:
+    name: Python package (PyPI)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check tag matches __version__
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(python -c "import crypto_check; print(crypto_check.__version__)")
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match __version__ $VERSION"
+            exit 1
+          fi
+
+      - run: pip install build
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install . pyinstaller
+      - run: pyinstaller --noconfirm packaging/pyinstaller/crypto_check.spec
+
+      - name: Build installer and portable zip
+        shell: pwsh
+        run: |
+          $version = python -c "import crypto_check; print(crypto_check.__version__)"
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=$version packaging\windows\installer.iss
+          Compress-Archive -Path dist\CryptoCheck -DestinationPath "dist\CryptoCheck-$version-windows-portable.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/CryptoCheck-Setup-*.exe
+            dist/CryptoCheck-*-windows-portable.zip
+
+  linux:
+    name: Linux AppImage
+    # Build on the oldest supported Ubuntu so the AppImage runs on older distros too
+    # (glibc is forward- but not backward-compatible). Bump this if GitHub retires it.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install . pyinstaller
+      - run: pyinstaller --noconfirm packaging/pyinstaller/crypto_check.spec
+      - run: bash packaging/appimage/build_appimage.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*.AppImage
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [python-package, windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+  pypi:
+    name: Publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [python-package]
+    runs-on: ubuntu-latest
+    # Uses PyPI "trusted publishing", so no password or token is stored in GitHub.
+    # One-time setup is described in PUBLISHING.md.
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
